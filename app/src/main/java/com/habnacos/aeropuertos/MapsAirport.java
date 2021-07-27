@@ -4,6 +4,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -50,16 +51,21 @@ public class MapsAirport extends FragmentActivity implements OnMapReadyCallback 
         // Add a marker in Sydney and move the camera
         AirportController controller = new AirportController(this);
         Cursor cursor = controller.getAll();
-        cursor.moveToFirst();
-        do {
-            LatLng airport = new LatLng(
-                    cursor.getDouble(cursor.getColumnIndex(DB.col_latitude)),
-                    cursor.getDouble(cursor.getColumnIndex(DB.col_length))
-            );
-            mMap.addMarker(new MarkerOptions().position(airport).title(
-                    cursor.getString(cursor.getColumnIndex(DB.col_name))
-            ));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(airport));
-        } while (cursor.moveToNext());
+        if (cursor.getCount() <= 0) {
+            Toast.makeText(this, "No hay registros", Toast.LENGTH_SHORT).show();
+            onBackPressed();
+        } else {
+            cursor.moveToFirst();
+            do {
+                LatLng airport = new LatLng(
+                        cursor.getDouble(cursor.getColumnIndex(DB.col_latitude)),
+                        cursor.getDouble(cursor.getColumnIndex(DB.col_length))
+                );
+                mMap.addMarker(new MarkerOptions().position(airport).title(
+                        cursor.getString(cursor.getColumnIndex(DB.col_name))
+                ));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(airport));
+            } while (cursor.moveToNext());
+        }
     }
 }
